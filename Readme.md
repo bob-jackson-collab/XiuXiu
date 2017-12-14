@@ -4,5 +4,7 @@
 编写语言使用kotlin
 部分功能模块用到aop思想
 整体界面布局大多使用constraint_layout
+项目整体模块按功能来划分
+
 使用DataBinding 简化findViewById
 ViewModel View remoteData 之间的解耦采用Dagger2
