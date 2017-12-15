@@ -21,8 +21,7 @@ import java.util.ArrayList
 import javax.net.ssl.*
 
 class ServiceGenerator{
-
-     fun <S> createSeqrvice(serviceClass: Class<S>, baseUrl: String): S {
+     fun <S> createService(serviceClass: Class<S>, baseUrl: String): S {
         val gson = GsonBuilder()
                 .registerTypeAdapterFactory(NotNullListTypeAdapterFactory())
                 .create()
@@ -78,8 +77,7 @@ class ServiceGenerator{
 
                 @Throws(IOException::class)
                 override fun read(`in`: JsonReader): T {
-                    if (rawType == object : TypeToken<List<*>>() {
-                    }.rawType) {
+                    if (rawType == object : TypeToken<List<*>>() {}.rawType) {
                         if (`in`.peek() == JsonToken.NULL) {
                             `in`.nextNull()
                             return ArrayList<Any>() as T
