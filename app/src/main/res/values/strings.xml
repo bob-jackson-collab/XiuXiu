@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">XiuXiu</string>
+
+    <!--主頁文字-->
+    <string name="main_index">首頁</string>
+    <string name="main_circle">动态</string>
+    <string name="main_search">搜索</string>
+    <string name="main_person">我的</string>
+
 </resources>

@@ -1,18 +1,32 @@
 package com.ys.xiuxiu
 
+import com.ys.baselib.BaseFragment
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.view.ViewPager
+import android.widget.RadioGroup
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
+
+    val mRadioGroup:RadioGroup? = null
+    var mCurrentFragment : BaseFragment? = null
+    var mFragments:List<BaseFragment> ?= null
+    val mFragmentManager:FragmentManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Example of a call to a native method
-        sample_text.text = stringFromJNI()
+    }
 
+    private fun initData():Unit{
+        mFragments = ArrayList()
+        val indexFragment = IndexFragment()
     }
 
     /**
