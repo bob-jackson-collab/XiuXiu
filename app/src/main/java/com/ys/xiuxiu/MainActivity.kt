@@ -10,33 +10,49 @@ import android.widget.RadioGroup
 import com.ys.xiuxiu.person.PersonFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
+import android.content.Intent
+import android.view.KeyEvent
+import android.widget.CompoundButton
+import android.widget.Toast
+import kotlin.reflect.KFunction0
 
-class MainActivity : AppCompatActivity() {
 
-    val mRadioGroup: RadioGroup? = null
+class MainActivity : AppCompatActivity(), RadioGroup.OnCheckedChangeListener {
+
     var mCurrentFragment: BaseFragment? = null
     var mFragments: ArrayList<BaseFragment>? = null
     val mFragmentManager: FragmentManager? = null
     var mCurrentIndex: Int = 0
+    var mExitTime: Long = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Example of a call to a native method
+        initData()
     }
 
-    private fun initData(): Unit {
+    override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
+        when (checkedId) {
+            R.id.index_radio ->
+                if(mFragments!![0]!=null)showCurrentFragment(mFragments!![0])
+            R.id.circle_radio ->
+                if(mFragments!![1]!=null) showCurrentFragment(mFragments!![1])
+            R.id.search_radio ->
+                if(mFragments!![2]!=null)showCurrentFragment(mFragments!![2])
+            R.id.my_radio ->
+                if(mFragments!![3]!=null)showCurrentFragment(mFragments!![3])
+        }
+    }
+
+    private fun initData() {
         mFragments = ArrayList()
         val indexFragment = IndexFragment()
         val personFragment = PersonFragment()
         mFragments!!.add(indexFragment)
         mFragments!!.add(personFragment)
         mCurrentFragment = indexFragment
-    }
 
-    private fun showFirstFragment(fragment: BaseFragment) {
-        val beginTranscation = mFragmentManager!!.beginTransaction()
-
+        showCurrentFragment(mCurrentFragment as IndexFragment)
     }
 
     private fun showCurrentFragment(fragment: BaseFragment) {
@@ -51,33 +67,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restoreFragment(savedInstanceState: Bundle) {
-
         mCurrentIndex = savedInstanceState.getInt(STATE_FRAGMENT_NAME, 0)
-
         if (mFragments != null) {
             mFragments!!.removeAll(mFragments!!)
-        } else {
-            mFragments = ArrayList()
-        }
+        } else mFragments = ArrayList()
 
         mFragments!!.add(
-                if (mFragmentManager!!.findFragmentByTag(IndexFragment::class.java!!.getSimpleName()) != null)
-                    mFragmentManager.findFragmentByTag(IndexFragment::class.java!!.getSimpleName()) as IndexFragment
+                if (mFragmentManager!!.findFragmentByTag(IndexFragment::class.java.simpleName) != null)
+                    mFragmentManager.findFragmentByTag(IndexFragment::class.java.simpleName) as IndexFragment
                 else
                     IndexFragment())
         mFragments!!.add(
-                if (mFragmentManager.findFragmentByTag(PersonFragment::class.java!!.getSimpleName()) != null)
-                    mFragmentManager.findFragmentByTag(PersonFragment::class.java!!.getSimpleName()) as PersonFragment
+                if (mFragmentManager.findFragmentByTag(PersonFragment::class.java.simpleName) != null)
+                    mFragmentManager.findFragmentByTag(PersonFragment::class.java.simpleName) as PersonFragment
                 else
                     PersonFragment())
 
         val beginTransaction = mFragmentManager.beginTransaction()
         for (i in mFragments!!.indices) {
-
             if (i == mCurrentIndex) {
-                beginTransaction.show(mFragments!!.get(mCurrentIndex))
+                beginTransaction.show(mFragments!![mCurrentIndex])
             } else {
-                beginTransaction.hide(mFragments!!.get(i))
+                beginTransaction.hide(mFragments!![i])
             }
         }
 
@@ -85,9 +96,11 @@ class MainActivity : AppCompatActivity() {
         mCurrentFragment = mFragments!!.get(mCurrentIndex)
     }
 
-    override protected fun onSaveInstanceState(outState: Bundle) {
+
+    override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(STATE_FRAGMENT_NAME, mCurrentIndex)
         super.onSaveInstanceState(outState)
+        restoreFragment(outState)
     }
 
     /**
@@ -104,5 +117,26 @@ class MainActivity : AppCompatActivity() {
         init {
             System.loadLibrary("native-lib")
         }
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.addCategory(Intent.CATEGORY_HOME)
+        startActivity(intent)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val currentTime: Long = System.currentTimeMillis()
+        if (keyCode == KeyEvent.KEYCODE_BACK && event!!.repeatCount == 0) {
+            if (currentTime - mExitTime < 2000) {
+                System.exit(0)
+            } else {
+                Toast.makeText(this@MainActivity, "在按一次退出程序", Toast.LENGTH_SHORT).show()
+                mExitTime = currentTime
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

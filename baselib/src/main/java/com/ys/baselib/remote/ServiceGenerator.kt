@@ -20,72 +20,78 @@ import java.security.cert.X509Certificate
 import java.util.ArrayList
 import javax.net.ssl.*
 
-class ServiceGenerator{
-     fun <S> createService(serviceClass: Class<S>, baseUrl: String): S {
-        val gson = GsonBuilder()
-                .registerTypeAdapterFactory(NotNullListTypeAdapterFactory())
-                .create()
+class ServiceGenerator {
 
-        val retrofit = Retrofit.Builder()
-                .client(getOKHttpClient())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .baseUrl(baseUrl)
-                .build()
+    companion object {
+        fun <S> createService(serviceClass: Class<S>, baseUrl: String): S {
+            val gson = GsonBuilder()
+                    .registerTypeAdapterFactory(NotNullListTypeAdapterFactory())
+                    .create()
 
-        return retrofit.create(serviceClass)
-    }
-    private fun getOKHttpClient(): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-        builder.addInterceptor(LoggingInterceptor())
-        builder.addInterceptor(HeaderInterceptor())
-        try {
-            val sslContext = SSLContext.getInstance("TLS")
-            val trustManager = object : X509TrustManager {
-                @Throws(CertificateException::class)
-                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-                }
+            val retrofit = Retrofit.Builder()
+                    .client(getOKHttpClient())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .baseUrl(baseUrl)
+                    .build()
 
-                @Throws(CertificateException::class)
-                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-                }
-
-                override fun getAcceptedIssuers(): Array<X509Certificate?> {
-                    return arrayOfNulls(0)
-                }
-            }
-            sslContext.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
-            builder.sslSocketFactory(sslContext.socketFactory)
-        } catch (e: NoSuchAlgorithmException) {
-            e.printStackTrace()
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
+            return retrofit.create(serviceClass)
         }
-        builder.hostnameVerifier { _, _ -> true }
-        return builder.build()
-    }
 
-    private class NotNullListTypeAdapterFactory : TypeAdapterFactory {
-        override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T> {
-            val adapter = gson.getDelegateAdapter(this, type)
-            val rawType = type.rawType
-            return object : TypeAdapter<T>() {
-                @Throws(IOException::class)
-                override fun write(out: JsonWriter, value: T) {
-                    adapter.write(out, value)
-                }
-
-                @Throws(IOException::class)
-                override fun read(`in`: JsonReader): T {
-                    if (rawType == object : TypeToken<List<*>>() {}.rawType) {
-                        if (`in`.peek() == JsonToken.NULL) {
-                            `in`.nextNull()
-                            return ArrayList<Any>() as T
-                        }
+        private fun getOKHttpClient(): OkHttpClient {
+            val builder = OkHttpClient.Builder()
+            builder.addInterceptor(LoggingInterceptor())
+            builder.addInterceptor(HeaderInterceptor())
+            try {
+                val sslContext = SSLContext.getInstance("TLS")
+                val trustManager = object : X509TrustManager {
+                    @Throws(CertificateException::class)
+                    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
                     }
-                    return adapter.read(`in`)
+
+                    @Throws(CertificateException::class)
+                    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                    }
+
+                    override fun getAcceptedIssuers(): Array<X509Certificate?> {
+                        return arrayOfNulls(0)
+                    }
+                }
+                sslContext.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
+                builder.sslSocketFactory(sslContext.socketFactory)
+            } catch (e: NoSuchAlgorithmException) {
+                e.printStackTrace()
+            } catch (e: KeyManagementException) {
+                e.printStackTrace()
+            }
+            builder.hostnameVerifier { _, _ -> true }
+            return builder.build()
+        }
+
+        private class NotNullListTypeAdapterFactory : TypeAdapterFactory {
+            override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T> {
+                val adapter = gson.getDelegateAdapter(this, type)
+                val rawType = type.rawType
+                return object : TypeAdapter<T>() {
+                    @Throws(IOException::class)
+                    override fun write(out: JsonWriter, value: T) {
+                        adapter.write(out, value)
+                    }
+
+                    @Throws(IOException::class)
+                    override fun read(`in`: JsonReader): T {
+                        if (rawType == object : TypeToken<List<*>>() {}.rawType) {
+                            if (`in`.peek() == JsonToken.NULL) {
+                                `in`.nextNull()
+                                return ArrayList<Any>() as T
+                            }
+                        }
+                        return adapter.read(`in`)
+                    }
                 }
             }
         }
     }
+
 }
+

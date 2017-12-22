@@ -14,37 +14,51 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" >
+        app:layout_constraintRight_toRightOf="parent">
 
         <RadioButton
+            android:id="@+id/index_radio"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:button="@null"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/main_index" />
+            android:gravity="center"
+            android:text="@string/main_index"
+            android:textColor="@color/colorPrimary" />
+
         <RadioButton
+            android:id="@+id/circle_radio"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:button="@null"
-            android:text="@string/main_circle"/>
+            android:gravity="center"
+            android:text="@string/main_circle"
+            android:textColor="@color/colorPrimary" />
+
         <RadioButton
+            android:id="@+id/search_radio"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:button="@null"
-            android:text="@string/main_search"/>
+            android:gravity="center"
+            android:text="@string/main_search"
+            android:textColor="@color/colorPrimary" />
+
         <RadioButton
+            android:id="@+id/my_radio"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:button="@null"
-            android:text="@string/main_person"/>
+            android:gravity="center"
+            android:text="@string/main_person"
+            android:textColor="@color/colorPrimary" />
 
     </RadioGroup>
 
-  RadioGroup  <FrameLayout
+    <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
